@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>2026 국부연 상하이 일정</title>
+
+<!-- OG / SNS 썸네일 -->
+<meta property="og:title" content="2026 국부연 상하이 — Calendar prepared by 학술위"/>
+<meta property="og:description" content="4월 23일~26일 · 3박 4일 상하이 도시 탐방 일정"/>
+<meta property="og:image" content="https://d2xsxph8kpxj0f.cloudfront.net/310519663431419047/6bsppf5W4WobGWjdR6CMdt/shanghai-hero-skyline-6hvsbGQXtVceMmduBqAM4e.webp"/>
+<meta property="og:image:width" content="1280"/>
+<meta property="og:image:height" content="720"/>
+<meta property="og:type" content="website"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="2026 국부연 상하이 — Calendar prepared by 학술위"/>
+<meta name="twitter:image" content="https://d2xsxph8kpxj0f.cloudfront.net/310519663431419047/6bsppf5W4WobGWjdR6CMdt/shanghai-hero-skyline-6hvsbGQXtVceMmduBqAM4e.webp"/>
+
+<script>
+(function() {
+  const _log = console.log.bind(console);
+  console.log = function(...args) {
+    if (args.some(a => typeof a === 'string' && a.toLowerCase().includes('kakaopixel'))) return;
+    _log(...args);
+  };
+})();
+</script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    background: #f2f4f8;
+    color: #1a1a2e;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #app {
+    width: 100%; max-width: 480px;
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    position: relative;
+    transition: background 0.5s ease;
+  }
+
+  /* ── COVER HEADER ── */
+  #cover-header {
+    width: 100%;
+    background: linear-gradient(160deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+    padding: 20px 24px 18px;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  #cover-header::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: url('https://d2xsxph8kpxj0f.cloudfront.net/310519663431419047/6bsppf5W4WobGWjdR6CMdt/shanghai-hero-skyline-6hvsbGQXtVceMmduBqAM4e.webp') center/cover no-repeat;
+    opacity: 0.18;
+  }
+  .cover-inner { position: relative; z-index: 1; }
+  .cover-badge {
+    display: inline-block;
+    font-size: 10px; font-weight: 700; letter-spacing: 2px;
+    color: #C9A84C; border: 1px solid rgba(201,168,76,0.5);
+    border-radius: 20px; padding: 3px 10px; margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+  .cover-title {
+    font-size: 20px; font-weight: 900; color: #fff;
+    line-height: 1.3; margin-bottom: 4px;
+  }
+  .cover-sub {
+    font-size: 11px; color: rgba(255,255,255,0.5);
+    letter-spacing: 1px;
+  }
+
+  /* ── DAY VIEW ── */
+  #day-view { display: flex; flex-direction: column; flex: 1; }
+
+  .header {
+    padding: 20px 20px 0;
+    background: inherit;
+  }
+
+  .dots { display: flex; gap: 6px; margin-bottom: 18px; align-items: center; }
+  .dot { height: 8px; border-radius: 4px; border: none; cursor: pointer; transition: all 0.35s ease; padding: 0; }
+  .dot.active { width: 28px; }
+  .dot.inactive { width: 8px; }
+  .swipe-hint { margin-left: auto; font-size: 11px; color: rgba(0,0,0,0.3); letter-spacing: 1px; white-space: nowrap; }
+
+  .day-badge-row { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+  .day-badge {
+    min-width: 60px; height: 60px; border-radius: 16px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .day-badge .emoji { font-size: 20px; }
+  .day-badge .dlabel { font-size: 9px; font-weight: 800; letter-spacing: 1px; margin-top: 2px; }
+  .day-info .ddate { font-size: 11px; letter-spacing: 1.5px; font-weight: 700; margin-bottom: 4px; }
+  .day-info .dtheme { font-size: 18px; font-weight: 900; line-height: 1.2; margin-bottom: 3px; color: #1a1a2e; }
+  .day-info .dsub { font-size: 12px; color: #666; }
+
+  .meal-bar {
+    display: flex; gap: 6px; margin-bottom: 18px; padding: 10px 12px;
+    background: rgba(255,255,255,0.9); border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.07);
+    box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+  }
+  .meal-item { flex: 1; text-align: center; }
+  .meal-label { font-size: 9px; font-weight: 800; letter-spacing: 1px; margin-bottom: 3px; }
+  .meal-val { font-size: 10px; color: #555; line-height: 1.3; }
+
+  /* ── TIMELINE ── */
+  .timeline { padding: 0 20px 110px; flex: 1; }
+  .timeline-row { display: flex; gap: 10px; }
+  .time-col { display: flex; flex-direction: column; align-items: center; min-width: 40px; }
+  .time-text { font-size: 10px; text-align: center; padding-top: 13px; letter-spacing: 0.3px; line-height: 1.2; font-weight: 600; }
+  .time-line { width: 1.5px; flex: 1; min-height: 14px; margin: 3px 0; }
+  .card-col { flex: 1; margin: 5px 0; }
+
+  .card-btn {
+    width: 100%; text-align: left; cursor: pointer; padding: 11px 13px;
+    border-radius: 14px; position: relative; overflow: hidden;
+    transition: all 0.2s; display: flex; align-items: center; gap: 9px;
+  }
+  .card-btn.open { border-radius: 14px 14px 0 0; }
+  .card-btn:active { transform: scale(0.99); }
+  .card-top-bar { position: absolute; top: 0; left: 0; right: 0; height: 2.5px; }
+  .card-icon { font-size: 17px; flex-shrink: 0; }
+  .card-text { flex: 1; }
+  .card-title { font-size: 14px; font-weight: 700; margin-bottom: 2px; line-height: 1.3; }
+  .card-desc { font-size: 12px; line-height: 1.4; }
+  .chevron { font-size: 14px; transition: transform 0.25s ease, color 0.2s; flex-shrink: 0; margin-left: 3px; }
+
+  .detail-panel {
+    border-radius: 0 0 14px 14px; padding: 10px 13px 13px;
+    border-top: none; animation: fadeSlideIn 0.2s ease;
+  }
+  .detail-line { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 7px; }
+  .detail-line:last-child { margin-bottom: 0; }
+  .detail-bullet { font-size: 7px; margin-top: 5px; flex-shrink: 0; }
+  .detail-text { font-size: 12.5px; line-height: 1.6; }
+  .detail-text.special { font-size: 12px; font-weight: 700; }
+
+  .hotel-footer {
+    margin-top: 14px; padding: 11px 14px; border-radius: 12px;
+    background: rgba(255,255,255,0.9); border: 1px solid rgba(0,0,0,0.08);
+    display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+  }
+
+  /* ── MAP VIEW ── */
+  #map-view { display: none; flex-direction: column; flex: 1; padding-bottom: 100px; }
+  #map-view.active { display: flex; }
+  .map-header { padding: 20px 20px 0; }
+  .map-title-label { font-size: 11px; letter-spacing: 3px; font-weight: 800; margin-bottom: 8px; text-transform: uppercase; color: #C9A84C; }
+  .map-title { font-size: 24px; font-weight: 900; line-height: 1.25; margin-bottom: 6px; color: #1a1a2e; }
+  .map-hint { font-size: 13px; color: #777; line-height: 1.6; margin-bottom: 18px; }
+  .legend-row { display: flex; gap: 10px; flex-wrap: wrap; padding: 0 20px 16px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .legend-label { font-size: 12px; color: #444; font-weight: 600; }
+
+  #leaflet-map {
+    margin: 0 16px; border-radius: 18px; overflow: hidden;
+    height: 380px; border: 1px solid rgba(0,0,0,0.1);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  }
+  .day-tab-row {
+    display: flex; gap: 8px; padding: 0 16px 12px; flex-wrap: nowrap; overflow-x: auto;
+  }
+  .day-tab {
+    flex-shrink: 0; padding: 6px 14px; border-radius: 20px; font-size: 12px;
+    font-weight: 700; cursor: pointer; border: 1.5px solid transparent;
+    transition: all 0.2s;
+  }
+  .day-tab.active { color: #fff; }
+  .day-tab.inactive { background: #fff; color: #888; border-color: rgba(0,0,0,0.1); }
+  .spot-list-wrap { padding: 20px 20px 0; }
+  .spot-list-title { font-size: 11px; color: #999; margin-bottom: 12px; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; }
+  .spot-day-label { font-size: 12px; font-weight: 800; letter-spacing: 2px; margin-bottom: 8px; text-transform: uppercase; }
+  .spot-row {
+    display: flex; align-items: center; gap: 12px; padding: 12px 13px;
+    border-radius: 13px; margin-bottom: 7px; cursor: pointer;
+    background: #fff; border: 1px solid rgba(0,0,0,0.07);
+    transition: all 0.2s; box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+  }
+  .spot-row:hover, .spot-row:active { background: #f8f8ff; box-shadow: 0 3px 12px rgba(0,0,0,0.1); }
+  .spot-icon-wrap { width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .spot-name { font-size: 14px; font-weight: 700; color: #1a1a2e; margin-bottom: 3px; }
+  .spot-meta { font-size: 11px; color: #888; }
+
+  /* ── NAV ── */
+  .nav {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 10px; z-index: 10;
+  }
+  .nav-btn {
+    width: 48px; height: 48px; border-radius: 24px; font-size: 18px; cursor: pointer;
+    backdrop-filter: blur(12px); transition: all 0.2s; border: none;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  }
+  .nav-btn:disabled { cursor: default; }
+  .nav-counter {
+    display: flex; align-items: center; padding: 0 18px;
+    border-radius: 24px; backdrop-filter: blur(12px);
+    font-size: 13px; letter-spacing: 0.5px; font-weight: 700;
+    white-space: nowrap; box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  }
+
+
+
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .custom-popup .leaflet-popup-content-wrapper { background: transparent; box-shadow: none; padding: 0; }
+  .custom-popup .leaflet-popup-content { margin: 0; }
+  .custom-popup .leaflet-popup-tip-container { display: none; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ── 상단 고정 타이틀 헤더 ── -->
+  <div id="cover-header">
+    <div class="cover-inner">
+      <div class="cover-badge">학술위 Calendar</div>
+      <div class="cover-title">2026 국부연 상하이</div>
+      <div class="cover-sub">4월 23일 – 26일 · 3박 4일 도시 탐방</div>
+    </div>
+  </div>
+
+  <!-- DAY VIEW -->
+  <div id="day-view">
+    <div class="header" id="header"></div>
+    <div class="timeline" id="timeline"></div>
+  </div>
+
+  <!-- MAP VIEW -->
+  <div id="map-view">
+    <div class="map-header">
+      <div class="dots" id="map-dots"></div>
+      <div class="map-title-label">전체 동선</div>
+      <div class="map-title">3박 4일 상하이<br>이동 지도</div>
+      <div class="map-hint">DAY 탭으로 일정별 지도를 확인하고, 아래 스팟을 탭하면 구글맵이 열려요.</div>
+    </div>
+    <div class="legend-row">
+      <div class="legend-item"><div class="legend-dot" style="background:#C9A84C"></div><span class="legend-label">DAY 1 루자쭈이</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#5BA4A4"></div><span class="legend-label">DAY 2 전통×현대</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#E07A5F"></div><span class="legend-label">DAY 3 도시재생</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#9B7FD4"></div><span class="legend-label">DAY 4 브랜드공간</span></div>
+    </div>
+    <div class="day-tab-row" id="day-tab-row"></div>
+    <div id="leaflet-map"></div>
+    <div class="spot-list-wrap">
+      <div class="spot-list-title">주요 스팟 목록</div>
+      <div id="spot-list"></div>
+    </div>
+  </div>
+
+  <div class="nav" id="nav"></div>
+</div>
+
+<script>
+/* ====== DATA ====== */
+const days = [
+  {
+    day:1, date:"4월 23일 (목)", theme:"루자쭈이 CBD", sub:"상하이 도시 구조의 시작",
+    accent:"#B8860B", lightBg:"#fffbf0", cardBg:"#fff8e8", borderCol:"#e8d5a3",
+    emoji:"🏙️", hotel:"하얏트 온더 번드",
+    meals:{morning:"기내식", lunch:"현지 로컬식 (점도덕 딤섬)", dinner:"로컬 양꼬치 웰컴디너"},
+    schedule:[
+      {time:"11:10",icon:"✈️",title:"인천 출발",desc:"KE887 · 제2여객터미널",details:["항공편: KE887","출발: 인천국제공항 제2여객터미널","목적지: 상하이 푸둥 국제공항","기내식 제공"]},
+      {time:"12:25",icon:"🛬",title:"푸동 도착",desc:"49인승 전세버스 탑승 · 오리엔테이션",details:["49인승 전용 버스 탑승","전체 일정 오리엔테이션 진행","가이드 안내 및 주의사항 공유"]},
+      {time:"14:30",icon:"🥢",title:"점심 — 점도덕",desc:"광둥식 딤섬 · 정대광장점",details:["식당: 점도덕 (광둥식 딤섬 전문점)","위치: 정대광장(Super Brand Mall)","푸동 루자쭈이 CBD 내 위치","상하이 첫 미식 경험"]},
+      {time:"15:30",icon:"🏙️",title:"루자쭈이 도보 탐방",desc:"동방명주 촬영 → 도보 이동 → 마천루 외관 & 단체촬영",details:["동방명주 외관 포토타임","루자쭈이 CBD 지상 도보 이동","상하이 타워 / SWFC / 진마오 타워 3대 마천루 외관 감상","루자쭈이 광장 단체 포토"]},
+      {time:"⭐",icon:"📸",title:"DAY 1 Signature",desc:"루자쭈이 광장 3대 마천루 단체포토",highlight:true,details:["📌 루자쭈이 지상 광장","상하이 타워 + 상하이 세계 금융 센터 + 진마오 타워","3대 초고층 마천루 배경 단체 포토","상하이 시그니처 뷰 인증컷"]},
+      {time:"17:30",icon:"🚌",title:"버스 탑승 → 재경대 이동",desc:"루자쭈이 광장 출발 · 전용버스",details:["루자쭈이 광장 출발 후 전용버스 탑승","상하이 재경대학교로 이동","약 30분 소요 예상"]},
+      {time:"18:00",icon:"📚",title:"상하이 재경대 세미나 Ⅰ",desc:"상하이 도시 형성과 권역별 개발 구조",details:["장소: 상하이 재경대학교","주제: [상하이의 골격] 도시 형성과 권역별 개발 구조","현지 재경대학 연계 프로그램 (강사 미정)","상하이가 어떻게 형성·확장되었는지, 핵심 부동산 권역의 형성 원리 탐구"]},
+      {time:"21:00",icon:"🍢",title:"웰컴 디너",desc:"헌지우이치엔 양로우촨 (루이홍팡점)",details:["식당: 헌지우이치엔 양로우촨","위치: 루이훙티엔디 루이훙팡점","숯불 향이 살아있는 상하이 로컬 양꼬치","편안한 분위기 속 네트워킹","식사 후 10분 내 호텔 이동","이동 중 객실 키 사전 배부"]},
+    ]
+  },
+  {
+    day:2, date:"4월 24일 (금)", theme:"전통 자산 × 현대 라이프", sub:"역사와 감성이 만나는 상하이",
+    accent:"#2a7a7a", lightBg:"#f0fafa", cardBg:"#e8f7f7", borderCol:"#a8d5d5",
+    emoji:"🌿", hotel:"하얏트 온더 번드",
+    meals:{morning:"호텔 조식", lunch:"예원 자율식사 (Per Diem)", dinner:"루프탑 뷔페 · 올인클루시브"},
+    schedule:[
+      {time:"08:00",icon:"🚌",title:"템즈타운 출발",desc:"쑹장구 영국풍 테마 개발 단지",details:["호텔 조식 후 로비 집결","전용차량 탑승 → 영국마을(템즈타운) 이동","영국풍 건축과 현대 도시 계획 결합 테마 개발 사례","차량 탑승 전 주류 구비 예정"]},
+      {time:"09:20",icon:"📖",title:"종서각 방문",desc:"세계에서 가장 아름다운 서점 · 감성 스냅",details:["세계에서 가장 아름다운 서점 '종서각' 방문","거울·유리를 활용한 공간 연출과 브랜드 자산화 전략 체감","고딕양식 성당과 광장 등 랜드마크 기반 집객 동선 확인","이국적 배경 감성 스냅 촬영","로컬 카페 자유 체험"]},
+      {time:"⭐",icon:"📸",title:"DAY 2 Signature",desc:"종서각 내부 + 성당 광장 단체사진",highlight:true,details:["📌 European Vibe Moment","종서각 내부 포토타임 (환상적인 서점 인테리어 인생샷)","메인 성당 앞 광장 단체 사진","영국풍 골목 자유 워킹","템즈타운 메인 포토타임 (단체컷 + 감성 스냅)"]},
+      {time:"11:30",icon:"🏯",title:"예원 탐방",desc:"전통 정원 + 상권 · 조별 자율 식사",details:["운영: 조별 자율 활동 (Per Diem 지급)","예원 상권 내 자유 식사 및 로컬 간식 체험","조별 예원 입장권 구매 후 정원 내부 자유 관람","전통 정원+상권 융합구조 체험","⚠️ 집결: 정원 내 '대나무 숲길' 지나 '큰 정자' 앞에서 조별 인원 확인"]},
+      {time:"13:00",icon:"🛍️",title:"난징동루 & 와이탄",desc:"인민광장→난징동루→와이탄 자유 탐방",details:["인민광장 → 난징동루 → 와이탄 이어지는 자유탐방","카페·쇼핑·마사지 등 각자의 속도로 즐기기","와이탄 끝자락에서 차량 탑승 후 호텔 이동"]},
+      {time:"18:30",icon:"🌙",title:"호텔 이브닝 준비",desc:"환복 · 루프탑 나이트 대기",details:["호텔 이동 및 잠시 휴식","루프탑 나이트를 위한 환복"]},
+      {time:"19:30",icon:"🥂",title:"루프탑 나이트",desc:"뷔페·위스키·칵테일 · 상하이 야경 네트워킹",details:["장소: 호텔 루프탑 바","뷔페 · 위스키 · 칵테일 포함 올인클루시브","상하이 야경을 한눈에 담는 루프탑 공간","자연스럽게 이어지는 네트워킹","둘째 날 하이라이트","01:00 취침 권장"]},
+    ]
+  },
+  {
+    day:3, date:"4월 25일 (토)", theme:"산업유산의 예술적 부활", sub:"도시 재생과 복합 개발 트렌드",
+    accent:"#c0522a", lightBg:"#fff5f2", cardBg:"#fdeee9", borderCol:"#f0b9a8",
+    emoji:"🎨", hotel:"하얏트 온더 번드",
+    meals:{morning:"호텔 조식", lunch:"천안천수 자율식사 (Per Diem)", dinner:"호텔 중식 갈라 디너"},
+    schedule:[
+      {time:"07:30",icon:"☀️",title:"호텔 조식",desc:"오전 일정 준비",details:["호텔 조식 후 오전 일정 준비","세미나 참석 준비"]},
+      {time:"09:00",icon:"📚",title:"세미나 Ⅱ",desc:"도시 재생과 복합 개발 트렌드",details:["장소: 호텔 홀","주제: [상하이의 미래] 도시 재생과 복합 개발 트렌드","강사 미정","상하이의 최근 도시 재생·확장 방식 분석","상업·주거·문화 결합 복합 개발 사례 중심 설명"]},
+      {time:"10:30",icon:"🌳",title:"천안천수 (1000 Trees)",desc:"도심 속 수직정원 · 쑤저우허 강변",details:["정식명: Tian An 1000 Trees","'도시 속 산' 콘셉트의 혁신적 건축 미학 체험","쑤저우허 강변과 상업시설의 조화 관찰","외관 기반 집객력 분석"]},
+      {time:"11:00",icon:"🎭",title:"M50 창의예술단지",desc:"폐방직공장 → 문화공간 재생 사례",details:["폐쇄된 국영 방직 공장을 문화공간으로 재생한 상하이 대표 사례","산업유산을 문화 자산으로 전환해 부동산 가치 확장 모델 체험"]},
+      {time:"12:30",icon:"🍽️",title:"자율 점심",desc:"천안천수 푸드코트 · 조별 자유식",details:["Per Diem 지급","천안천수 몰 내 푸드코트 및 캐주얼 다이닝","조별로 흩어지기 용이한 다양한 가성비 식당 밀집","테라스 뷰가 좋은 아시아 퓨전 레스토랑 추천"]},
+      {time:"14:00",icon:"🎪",title:"ERA 서커스",desc:"마시청 · 첨단 무대 몰입형 공연",details:["공연명: ERA 인터섹션 오브 타임","장소: 마시청 서커스","첨단 무대 연출과 퍼포먼스가 결합된 몰입형 예술 공연","상하이의 과거·미래를 잇는 스토리의 시그니처 문화 콘텐츠"]},
+      {time:"16:00",icon:"🧱",title:"신천지",desc:"석고문 가옥 개조 · 노천카페 자유 체험",details:["도시재생의 교과서적 사례","석고문 가옥을 개조한 고급 상업지구","유럽 노천카페 분위기","신천지 입구 분수대광장과 붉은 벽돌 건물 포토타임","조별로 노천카페에서 커피 자유 체험","전통 가옥 보존과 상업적 성공을 동시에 거둔 도시재생 모델"]},
+      {time:"⭐",icon:"🥂",title:"DAY 3 Signature",desc:"갈라 디너 & 클로징 네트워킹",highlight:true,details:["📌 Gala Dinner & Closing Networking","장소: 하얏트 온더 번드 내부","중식 코스로 준비된 공식 갈라 디너","3일간의 여정을 정리하며 나누는 깊이 있는 교류","상하이에서의 마지막 밤을 기념하는 클로징 세리머니"]},
+    ]
+  },
+  {
+    day:4, date:"4월 26일 (일)", theme:"브랜드의 공간학", sub:"하이엔드 랜드마크 & 플래그십 리테일",
+    accent:"#6b4fa0", lightBg:"#f8f4ff", cardBg:"#f0eaff", borderCol:"#c8b4e8",
+    emoji:"☕", hotel:"귀국",
+    meals:{morning:"호텔 조식", lunch:"기내식", dinner:"—"},
+    schedule:[
+      {time:"AM",icon:"🏨",title:"조식 & 체크아웃",desc:"하얏트 온더 번드",details:["호텔 조식 후 체크아웃","짐 보관 또는 차량 탑재","마지막 날 일정 시작"]},
+      {time:"08:00",icon:"☕",title:"스타벅스 리저브 로스터리",desc:"난징시루 · 세계 최대 규모 플래그십",details:["위치: 난징시루","세계 최대 규모의 스타벅스 리저브 로스터리","커피 로스팅 공정 및 브랜드 공간 체험","글로벌 브랜드의 공간 경험형 리테일 전략 체감","커피·로스팅·굿즈·베이커리 결합 플래그십 매장","모닝 커피 & 자유 포토타임"]},
+      {time:"⭐",icon:"📸",title:"DAY 4 Signature",desc:"로스터리 공간 체험 + 모닝커피 포토",highlight:true,details:["📌 상하이 대표 리테일 플래그십 공간","로스터리 내부 공간 체험","모닝 커피와 함께하는 자유 포토타임"]},
+      {time:"10:30",icon:"⛵",title:"루이호 (The Louis)",desc:"LV 배모양 랜드마크 건축 · 홍차오 상권",details:["정식명: Louis Vuitton 'The Louis'","상하이 홍차오 상권의 상징적 배 모양 랜드마크 건축물","루이비통 초대형 브랜드 공간 탐방","배 형태 외관의 상하이 대표 랜드마크 건축 외관 포토타임","내부 전시 관람 희망자: 공식 사이트 사전 예약 후 자유 관람"]},
+      {time:"11:30",icon:"🚌",title:"푸동 공항 이동",desc:"전용차량 · 출국 수속",details:["전용차량 이동","출국 수속 및 공항 내 자유쇼핑"]},
+      {time:"13:40",icon:"✈️",title:"KE888 상하이 출발",desc:"푸동(PVG) → 인천(ICN)",details:["항공편: KE888","출발: 상하이 푸둥 국제공항 (PVG)","도착: 인천국제공항 (ICN)","기내식 제공"]},
+      {time:"16:45",icon:"🏠",title:"인천 도착 & 해산",desc:"4일간의 상하이 여정 완료 🎉",details:["인천국제공항 도착","입국 수속 후 해산","4일간의 상하이 도시 탐방 여정 완료 🎉"]},
+    ]
+  }
+];
+
+const MAP_PAGE = 4;
+const TOTAL    = 5;
+const dayColors = {1:'#C9A84C',2:'#5BA4A4',3:'#E07A5F',4:'#9B7FD4'};
+const mapSpots = [
+  {day:1,lat:31.2334,lng:121.5053,color:'#C9A84C',icon:'🥢',name:'점심 — 점도덕',sub:'광둥식 딤섬 · 정대광장',time:'14:30'},
+  {day:1,lat:31.2395,lng:121.4995,color:'#C9A84C',icon:'🗼',name:'동방명주 & 루자쭈이 보행',sub:'동방명주 포토 → 마천루 도보',time:'15:30'},
+  {day:1,lat:31.2334,lng:121.5053,color:'#C9A84C',icon:'🏙️',name:'상하이 타워 관람',sub:'118F 전망대 + 단체포토',time:'16:30'},
+  {day:1,lat:31.2988,lng:121.5010,color:'#C9A84C',icon:'📚',name:'상하이 재경대 세미나 Ⅰ',sub:'도시 형성과 권역별 개발 구조',time:'18:00'},
+  {day:1,lat:31.2480,lng:121.4902,color:'#C9A84C',icon:'🍢',name:'웰컴 디너 — 헌지우이치엔',sub:'숯불 양꼬치 · 홍커우구',time:'21:00'},
+  {day:2,lat:31.0189,lng:121.2272,color:'#5BA4A4',icon:'📖',name:'템즈타운 · 종서각',sub:'영국풍 테마 개발 + 아름다운 서점',time:'08:00'},
+  {day:2,lat:31.2274,lng:121.4924,color:'#5BA4A4',icon:'🏯',name:'예원',sub:'전통 정원 + 상권 자율 탐방',time:'11:30'},
+  {day:2,lat:31.2366,lng:121.4757,color:'#5BA4A4',icon:'🛍️',name:'난징동루 & 와이탄',sub:'인민광장→난징동루→와이탄',time:'13:00'},
+  {day:2,lat:31.2398,lng:121.4910,color:'#5BA4A4',icon:'🥂',name:'루프탑 나이트',sub:'하얏트 온더 번드 루프탑 바',time:'19:30'},
+  {day:3,lat:31.2414,lng:121.4468,color:'#E07A5F',icon:'🌳',name:'천안천수 + M50',sub:'도심 속 수직 정원 · M50 창의예술단지',time:'11:00'},
+  {day:3,lat:31.2261,lng:121.5059,color:'#E07A5F',icon:'🎪',name:'ERA 서커스',sub:'마시청 · 몰입형 공연',time:'14:00'},
+  {day:3,lat:31.2219,lng:121.4742,color:'#E07A5F',icon:'🧱',name:'신천지',sub:'석고문 가옥 개조 고급 상업지구',time:'16:00'},
+  {day:3,lat:31.2398,lng:121.4910,color:'#E07A5F',icon:'🥂',name:'갈라 디너',sub:'하얏트 온더 번드 · 클로징 세리머니',time:'19:00'},
+  {day:4,lat:31.2214,lng:121.4472,color:'#9B7FD4',icon:'☕',name:'스타벅스 리저브 로스터리',sub:'난징시루 · 세계 최대 플래그십',time:'08:00'},
+  {day:4,lat:31.1985,lng:121.3609,color:'#9B7FD4',icon:'⛵',name:'루이호 (The Louis)',sub:'LV 배모양 랜드마크 · 홍차오',time:'10:30'},
+  {day:4,lat:31.1443,lng:121.8083,color:'#9B7FD4',icon:'✈️',name:'상하이 푸동 국제공항',sub:'KE888 인천행 출발',time:'13:40'},
+];
+
+/* ====== STATE ====== */
+let current  = 0;
+let expanded = null;
+
+/* ====== HELPERS ====== */
+function hexA(hex, alpha) {
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+function buildDotsHTML(accent) {
+  let h = '';
+  for (let i = 0; i < TOTAL; i++) {
+    const active = i === current;
+    const isMapDot = i === MAP_PAGE;
+    const w  = active ? '28px' : '8px';
+    const bg = active ? accent : (isMapDot ? 'rgba(0,0,0,0.25)' : 'rgba(0,0,0,0.18)');
+    h += `<button onclick="goPage(${i})" title="${isMapDot?'지도':'DAY '+(i+1)}"
+      style="height:8px;width:${w};border-radius:4px;border:none;cursor:pointer;background:${bg};padding:0;transition:all 0.35s;flex-shrink:0;"></button>`;
+  }
+  h += `<span class="swipe-hint">스와이프</span>`;
+  return h;
+}
+
+/* ====== RENDER ====== */
+function render() {
+  const isMap = current === MAP_PAGE;
+  const d     = isMap ? null : days[current];
+  const accent = isMap ? '#1a1a2e' : d.accent;
+  const bgCol  = isMap ? '#f2f4f8' : d.lightBg;
+
+  document.getElementById('app').style.background = bgCol;
+  document.getElementById('day-view').style.display = isMap ? 'none' : 'flex';
+  const mv = document.getElementById('map-view');
+  mv.style.display = isMap ? 'flex' : 'none';
+
+  if (isMap) {
+    document.getElementById('map-dots').innerHTML = buildDotsHTML('#1a1a2e');
+    renderMapNav();
+    initMap();
+  } else {
+    renderDayHeader(d);
+    renderTimeline(d);
+    renderDayNav(d);
+  }
+}
+
+/* ---- DAY HEADER ---- */
+function renderDayHeader(d) {
+  const mealHtml = [
+    {label:'조',val:d.meals.morning},
+    {label:'중',val:d.meals.lunch},
+    {label:'석',val:d.meals.dinner}
+  ].map(m=>`
+    <div class="meal-item">
+      <div class="meal-label" style="color:${d.accent}">${m.label}</div>
+      <div class="meal-val">${m.val}</div>
+    </div>`).join('');
+
+  document.getElementById('header').style.background = d.lightBg;
+  document.getElementById('header').innerHTML = `
+    <div class="dots">${buildDotsHTML(d.accent)}</div>
+    <div class="day-badge-row">
+      <div class="day-badge" style="background:${hexA(d.accent,0.12)};border:1.5px solid ${hexA(d.accent,0.35)}">
+        <span class="emoji">${d.emoji}</span>
+        <span class="dlabel" style="color:${d.accent}">DAY ${d.day}</span>
+      </div>
+      <div class="day-info">
+        <div class="ddate" style="color:${d.accent}">${d.date}</div>
+        <div class="dtheme">${d.theme}</div>
+        <div class="dsub">${d.sub}</div>
+      </div>
+    </div>
+    <div class="meal-bar">${mealHtml}</div>`;
+}
+
+/* ---- TIMELINE ---- */
+function renderTimeline(d) {
+  let html = '';
+  d.schedule.forEach((item,i) => {
+    const key    = `${current}-${i}`;
+    const isOpen = expanded === key;
+    const isLast = i === d.schedule.length - 1;
+
+    const timeColor = item.highlight ? d.accent : '#aaa';
+    const lineCol   = item.highlight ? hexA(d.accent,0.3) : 'rgba(0,0,0,0.1)';
+
+    let cardBg, cardBorder, titleCol, descCol;
+    if (item.highlight) {
+      cardBg     = `linear-gradient(135deg, ${hexA(d.accent,0.12)}, ${hexA(d.accent,0.06)})`;
+      cardBorder = `1.5px solid ${hexA(d.accent,0.4)}`;
+      titleCol   = d.accent;
+      descCol    = hexA(d.accent, 0.7);
+    } else if (isOpen) {
+      cardBg = d.cardBg; cardBorder = `1.5px solid ${d.borderCol}`; titleCol='#1a1a2e'; descCol='#666';
+    } else {
+      cardBg = '#fff'; cardBorder = '1px solid rgba(0,0,0,0.08)'; titleCol='#1a1a2e'; descCol='#777';
+    }
+
+    const topBar = item.highlight
+      ? `<div class="card-top-bar" style="background:linear-gradient(90deg,${d.accent},transparent)"></div>` : '';
+    const chevCol = isOpen ? d.accent : '#bbb';
+    const chevRot = isOpen ? 'rotate(180deg)' : 'rotate(0)';
+    const cardRadius = isOpen ? '14px 14px 0 0' : '14px';
+    const shadow = item.highlight
+      ? `box-shadow:0 2px 10px ${hexA(d.accent,0.15)}`
+      : isOpen ? `box-shadow:0 2px 8px rgba(0,0,0,0.08)` : `box-shadow:0 1px 5px rgba(0,0,0,0.05)`;
+
+    let detailHtml = '';
+    if (isOpen) {
+      const linesHtml = item.details.map(line => {
+        const sp = line.startsWith('📌') || line.startsWith('⚠️');
+        const bullet = sp ? '' : `<span class="detail-bullet" style="color:${d.accent}">◆</span>`;
+        const col    = sp ? d.accent : '#444';
+        return `<div class="detail-line">${bullet}<span class="detail-text ${sp?'special':''}" style="color:${col}">${line}</span></div>`;
+      }).join('');
+      detailHtml = `<div class="detail-panel" style="background:${d.cardBg};border:1.5px solid ${d.borderCol};border-top:1px solid ${hexA(d.accent,0.15)}">${linesHtml}</div>`;
+    }
+
+    html += `
+      <div class="timeline-row">
+        <div class="time-col">
+          <div class="time-text" style="color:${timeColor};font-weight:${item.highlight?800:600}">${item.time}</div>
+          ${!isLast ? `<div class="time-line" style="background:${lineCol}"></div>` : ''}
+        </div>
+        <div class="card-col">
+          <button class="card-btn ${isOpen?'open':''}"
+            style="background:${cardBg};border:${cardBorder};border-radius:${cardRadius};${shadow}"
+            onclick="toggleCard('${key}')">
+            ${topBar}
+            <span class="card-icon">${item.icon}</span>
+            <div class="card-text">
+              <div class="card-title" style="color:${titleCol}">${item.title}</div>
+              <div class="card-desc" style="color:${descCol}">${item.desc}</div>
+            </div>
+            <span class="chevron" style="color:${chevCol};transform:${chevRot}">▾</span>
+          </button>
+          ${detailHtml}
+        </div>
+      </div>`;
+  });
+
+  html += `
+    <div class="hotel-footer">
+      <span style="font-size:15px">🏨</span>
+      <span style="font-size:11px;color:#999">숙박</span>
+      <span style="font-size:13px;color:#333;font-weight:700">${d.hotel}</span>
+    </div>`;
+  document.getElementById('timeline').innerHTML = html;
+}
+
+/* ---- NAV ---- */
+function renderDayNav(d) {
+  const prevDis = current === 0;
+  const isLast  = current === 3;
+  document.getElementById('nav').innerHTML = `
+    <button class="nav-btn" onclick="goPage(${current-1})" ${prevDis?'disabled':''}
+      style="background:${prevDis?'rgba(0,0,0,0.06)':'#fff'};color:${prevDis?'#ccc':'#333'};border:1px solid ${prevDis?'rgba(0,0,0,0.06)':'rgba(0,0,0,0.12)'}">‹</button>
+    <div class="nav-counter" style="background:#fff;border:1px solid rgba(0,0,0,0.1);color:#333">DAY ${current+1} / 4</div>
+    <button class="nav-btn" onclick="goPage(${current+1})"
+      style="background:${d.accent};color:#fff;border:none;font-size:${isLast?'20px':'18px'}">${isLast?'🗺️':'›'}</button>`;
+}
+
+function renderMapNav() {
+  document.getElementById('nav').innerHTML = `
+    <button class="nav-btn" onclick="goPage(3)"
+      style="background:#fff;color:#333;border:1px solid rgba(0,0,0,0.12)">‹</button>
+    <div class="nav-counter" style="background:#1a1a2e;color:#C9A84C;border:none">🗺️ 이동 지도</div>
+    <button class="nav-btn" disabled style="background:rgba(0,0,0,0.05);color:#ccc;border:1px solid rgba(0,0,0,0.06)">›</button>`;
+}
+
+/* ---- MAP ---- */
+const gmapUrls = {
+  all: 'https://maps.google.com/maps?q=31.2220,121.4710&z=12&output=embed&hl=ko',
+  1:   'https://maps.google.com/maps?q=31.2334,121.5053&z=13&output=embed&hl=ko',
+  2:   'https://maps.google.com/maps?q=31.2274,121.4924&z=13&output=embed&hl=ko',
+  3:   'https://maps.google.com/maps?q=31.2414,121.4468&z=13&output=embed&hl=ko',
+  4:   'https://maps.google.com/maps?q=31.2214,121.4472&z=13&output=embed&hl=ko',
+};
+
+let activeMapDay = 'all';
+
+function buildDayTabs() {
+  const tabs = [
+    {key:'all', label:'전체', color:'#1a1a2e'},
+    {key:'1',   label:'DAY 1', color:'#C9A84C'},
+    {key:'2',   label:'DAY 2', color:'#5BA4A4'},
+    {key:'3',   label:'DAY 3', color:'#E07A5F'},
+    {key:'4',   label:'DAY 4', color:'#9B7FD4'},
+  ];
+  const row = document.getElementById('day-tab-row');
+  row.innerHTML = tabs.map(t => `
+    <button class="day-tab ${t.key===activeMapDay?'active':'inactive'}"
+      style="${t.key===activeMapDay?`background:${t.color};border-color:${t.color}`:''}"
+      onclick="setMapDay('${t.key}','${t.color}')">
+      ${t.label}
+    </button>`).join('');
+}
+
+function setMapDay(key, color) {
+  activeMapDay = key;
+  buildDayTabs();
+  loadGmap(key);
+}
+
+let leafletMap = null;
+let leafletMarkers = [];
+let leafletLines = [];
+
+const dayBounds = {
+  all: { center: [31.22, 121.47], zoom: 11 },
+  1:   { center: [31.245, 121.500], zoom: 13 },
+  2:   { center: [31.18,  121.35],  zoom: 11 },
+  3:   { center: [31.235, 121.46],  zoom: 13 },
+  4:   { center: [31.215, 121.44],  zoom: 13 },
+};
+
+function loadGmap(key) {
+  if (!leafletMap) return;
+  const filterDay = key === 'all' ? null : parseInt(key);
+  leafletMarkers.forEach(({ marker, s }) => {
+    if (!filterDay || s.day === filterDay) marker.addTo(leafletMap);
+    else marker.remove();
+  });
+  leafletLines.forEach(({ line, day }) => {
+    if (!filterDay || day === filterDay) line.addTo(leafletMap);
+    else line.remove();
+  });
+  const { center, zoom } = dayBounds[key] || dayBounds.all;
+  leafletMap.flyTo(center, zoom, { animate: true, duration: 0.8 });
+}
+
+function initMap() {
+  buildDayTabs();
+
+  if (!leafletMap) {
+    leafletMap = L.map('leaflet-map', { center:[31.22,121.47], zoom:11, zoomControl:true, scrollWheelZoom:false });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution:'© OpenStreetMap © CARTO', subdomains:'abcd', maxZoom:19
+    }).addTo(leafletMap);
+
+    // 라인
+    const dayCoords = {1:[],2:[],3:[],4:[]};
+    mapSpots.forEach(s => dayCoords[s.day].push([s.lat,s.lng]));
+    Object.entries(dayCoords).forEach(([day, coords]) => {
+      if (coords.length < 2) return;
+      const line = L.polyline(coords, { color:dayColors[day], weight:3, opacity:0.75, dashArray:'7 5' });
+      line.addTo(leafletMap);
+      leafletLines.push({ line, day:parseInt(day) });
+    });
+
+    // 마커
+    mapSpots.forEach(s => {
+      const iconHtml = `<div style="width:38px;height:38px;border-radius:50%;background:#fff;border:2.5px solid ${s.color};display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 2px 10px rgba(0,0,0,0.22);">${s.icon}</div>`;
+      const icon = L.divIcon({ html:iconHtml, className:'', iconSize:[38,38], iconAnchor:[19,19] });
+      const marker = L.marker([s.lat,s.lng], { icon }).addTo(leafletMap);
+      marker.bindPopup(L.popup({ className:'custom-popup', closeButton:false, offset:[0,-14] })
+        .setContent(`<div style="font-family:'Apple SD Gothic Neo',sans-serif;background:#fff;color:#1a1a2e;border-radius:13px;padding:13px 15px;border:1.5px solid ${s.color};box-shadow:0 4px 18px rgba(0,0,0,0.13);min-width:170px;">
+          <div style="font-size:10px;color:${s.color};font-weight:800;letter-spacing:1px;margin-bottom:5px;">DAY ${s.day} · ${s.time}</div>
+          <div style="font-size:14px;font-weight:800;margin-bottom:4px;">${s.name}</div>
+          <div style="font-size:11px;color:#777;line-height:1.4;">${s.sub}</div>
+        </div>`));
+      leafletMarkers.push({ marker, s });
+    });
+
+    setTimeout(() => leafletMap.invalidateSize(), 150);
+  } else {
+    setTimeout(() => leafletMap.invalidateSize(), 100);
+  }
+
+  // 스팟 목록
+  const spotList = document.getElementById('spot-list');
+  if (spotList.children.length > 0) return;
+  let curDay = 0;
+  mapSpots.forEach(s => {
+    if (s.day !== curDay) {
+      curDay = s.day;
+      const lbl = document.createElement('div');
+      lbl.className = 'spot-day-label';
+      lbl.style.cssText = `color:${dayColors[s.day]};margin-top:${s.day>1?'20px':'0'}`;
+      lbl.textContent = `DAY ${s.day}`;
+      spotList.appendChild(lbl);
+    }
+    const row = document.createElement('div');
+    row.className = 'spot-row';
+    row.innerHTML = `
+      <div class="spot-icon-wrap" style="background:${hexA(s.color,0.1)};border:1.5px solid ${hexA(s.color,0.4)}">${s.icon}</div>
+      <div style="flex:1;">
+        <div class="spot-name">${s.name}</div>
+        <div class="spot-meta">${s.time} · ${s.sub}</div>
+      </div>
+      <span style="font-size:13px;color:#ccc;">›</span>`;
+    row.addEventListener('click', () => {
+      leafletMap.flyTo([s.lat,s.lng], 15, { animate:true, duration:0.7 });
+      const found = leafletMarkers.find(m => m.s === s);
+      if (found) setTimeout(() => found.marker.openPopup(), 700);
+      document.getElementById('leaflet-map').scrollIntoView({ behavior:'smooth', block:'center' });
+    });
+    spotList.appendChild(row);
+  });
+}
+
+/* ====== CONTROLS ====== */
+function goPage(n) {
+  if (n < 0 || n >= TOTAL) return;
+  current = n; expanded = null;
+  window.scrollTo(0,0);
+  render();
+}
+function toggleCard(key) {
+  expanded = expanded === key ? null : key;
+  render();
+}
+
+let tx = null;
+document.addEventListener('touchstart', e=>{ tx=e.touches[0].clientX; },{passive:true});
+document.addEventListener('touchend', e=>{
+  if (tx===null) return;
+  const diff = tx - e.changedTouches[0].clientX;
+  if (Math.abs(diff)>50) goPage(diff>0 ? current+1 : current-1);
+  tx=null;
+});
+
+render();
+</script>
+</body>
+</html>
